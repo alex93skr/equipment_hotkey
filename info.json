@@ -1,0 +1,9 @@
+{
+  "name": "equipment_hotkey",
+  "version": "0.2",
+  "title": "equipment hotkey",
+  "author": "priziv",
+  "factorio_version": "1.1",
+  "dependencies": ["base >= 1.1"],
+  "description": "changing equipment profiles with hotkeys"
+}
