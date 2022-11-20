@@ -2,34 +2,11 @@
 
 --control.lua
 
-
-if script.active_mods["gvv"] then
-    require("__gvv__.gvv")()
-end
+-- if script.active_mods["gvv"] then
+-- require("__gvv__.gvv")()
+-- end
 
 --[[ 
-
-убрать equipment_hotkey-input"}, test_handler)
-
-
-сохранить заряд аккумов
-сохранить щиты
-удалять виртуал инвентарь
-чек полное совпадение по позиции
-очистка грида
-возврат шмоток в инвентарь (проверить свободное место перед снятием)
-
-опция:
-выкидывать лишнии вещи на землю
-
---print(equip.localised_name)
-player.print('not found ' .. item_name) списком
-
-тест:
-сохранить пустое поле
-загрузить пустое поле
-тест в редакторе
-
 
 
 	--   /c global.equipment_hotkey = nil
@@ -47,20 +24,15 @@ global.equipment_hotkey = {
 
 ]]
 
-
 --@
 local function print(s)
-    local DEBUG = true
-	
-	if DEBUG then
+    local DEBUG = false
 
-		-- game.print(math.random(10000, 99999) .. " " .. s)
-		game.print(s)
-		
+    if DEBUG then
+        -- game.print(math.random(10000, 99999) .. " " .. s)
+        game.print(s)
     end
 end
-
-
 
 --@
 local function print_table(t, name)
@@ -90,7 +62,6 @@ end
 local function hotkey(s)
     return string.sub(s, -1)
 end
-
 
 local function save_equipment(event)
     -- SAVE_EQUIPMENT
@@ -132,13 +103,12 @@ local function save_equipment(event)
     -- equipments to global
     local _grid = {}
     for _, equip in pairs(active_armor.grid.equipment) do
-		 table.insert(_grid, {['name'] = equip.name, ['position'] = equip.position})
+        table.insert(_grid, {["name"] = equip.name, ["position"] = equip.position})
     end
 
     global.equipment_hotkey[key]["grid"] = _grid
 
-	player.print("grid saved " .. key)
-
+    player.print("grid saved " .. key)
 end
 
 -- LOAD_EQUIPMENT
@@ -240,12 +210,11 @@ local function load_equipment(event)
 		буфер остатки в инвентарь
 	
 	]]
-	
-	--@
-	local function do_tables_match(a, b)
-		return table.concat(a) == table.concat(b)
-	end
-	
+    --@
+    local function do_tables_match(a, b)
+        return table.concat(a) == table.concat(b)
+    end
+
     -- @
     local function coordinates_match(coord)
         if active_armor.grid.get(coord) and do_tables_match(coord, active_armor.grid.get(coord).position) then
@@ -256,21 +225,23 @@ local function load_equipment(event)
 
     -- grid to save
     for n in ipairs(global.equipment_hotkey[key]["grid"]) do
-        item_coord_table = global.equipment_hotkey[key]["grid"][n]['position']
-        item_name = global.equipment_hotkey[key]["grid"][n]['name']
-        
-		-- battery-equipment energy
-		if game.equipment_prototypes[item_name].type == "battery-equipment" and coordinates_match(item_coord_table) then
-            global.equipment_hotkey[key]["grid"][n]['energy'] = active_armor.grid.get(item_coord_table).energy
-			-- table.insert(global.equipment_hotkey[key]["grid"][n], active_armor.grid.get(item_coord_table).energy)
+        item_coord_table = global.equipment_hotkey[key]["grid"][n]["position"]
+        item_name = global.equipment_hotkey[key]["grid"][n]["name"]
+
+        -- battery-equipment energy
+        if game.equipment_prototypes[item_name].type == "battery-equipment" and coordinates_match(item_coord_table) then
+            global.equipment_hotkey[key]["grid"][n]["energy"] = active_armor.grid.get(item_coord_table).energy
+        -- table.insert(global.equipment_hotkey[key]["grid"][n], active_armor.grid.get(item_coord_table).energy)
         end
-		
-		-- energy-shield-equipment shield
-		if game.equipment_prototypes[item_name].type == "energy-shield-equipment" and coordinates_match(item_coord_table) then
-            global.equipment_hotkey[key]["grid"][n]['shield'] = active_armor.grid.get(item_coord_table).shield
-			-- table.insert(global.equipment_hotkey[key]["grid"][n], active_armor.grid.get(item_coord_table).energy)
+
+        -- energy-shield-equipment shield
+        if
+            game.equipment_prototypes[item_name].type == "energy-shield-equipment" and
+                coordinates_match(item_coord_table)
+         then
+            global.equipment_hotkey[key]["grid"][n]["shield"] = active_armor.grid.get(item_coord_table).shield
+        -- table.insert(global.equipment_hotkey[key]["grid"][n], active_armor.grid.get(item_coord_table).energy)
         end
-		
     end
 
     -- grid to buffer, clear grid
@@ -286,8 +257,8 @@ local function load_equipment(event)
     not_found_list = {}
 
     for n in ipairs(global.equipment_hotkey[key]["grid"]) do
-        local item_coord_table = global.equipment_hotkey[key]["grid"][n]['position']
-        local item_name = global.equipment_hotkey[key]["grid"][n]['name']
+        local item_coord_table = global.equipment_hotkey[key]["grid"][n]["position"]
+        local item_name = global.equipment_hotkey[key]["grid"][n]["name"]
 
         local found = false
 
@@ -305,44 +276,43 @@ local function load_equipment(event)
 
         -- put in grid
         if found then
+            -- not_found
             active_armor.grid.put {name = item_name, position = item_coord_table}
 
             -- battery-equipment energy
-            local item_energy = global.equipment_hotkey[key]["grid"][n]['energy']
+            local item_energy = global.equipment_hotkey[key]["grid"][n]["energy"]
 
             if game.equipment_prototypes[item_name].type == "battery-equipment" and item_energy then
                 active_armor.grid.get(item_coord_table).energy = item_energy
-                global.equipment_hotkey[key]["grid"][n]['energy'] = nil
+                global.equipment_hotkey[key]["grid"][n]["energy"] = nil
             end
-			
-			-- energy-shield-equipment shield
-            local item_shield = global.equipment_hotkey[key]["grid"][n]['shield']
+
+            -- energy-shield-equipment shield
+            local item_shield = global.equipment_hotkey[key]["grid"][n]["shield"]
 
             if game.equipment_prototypes[item_name].type == "energy-shield-equipment" and item_shield then
                 active_armor.grid.get(item_coord_table).shield = item_shield
-                global.equipment_hotkey[key]["grid"][n]['shield'] = nil
+                global.equipment_hotkey[key]["grid"][n]["shield"] = nil
             end
-
-		-- not_found
         else
-			if not_found_list[item_name] then
-				not_found_list[item_name] = not_found_list[item_name] + 1
-			else
-				not_found_list[item_name] = 1
-			end
+            if not_found_list[item_name] then
+                not_found_list[item_name] = not_found_list[item_name] + 1
+            else
+                not_found_list[item_name] = 1
+            end
         end
     end
-	
-	-- print not_found_list
-	if next(not_found_list) then
-		for item, n in pairs(not_found_list) do
-			if n == 1 then
-				player.print({"", "not found: ", game.equipment_prototypes[item].localised_name})
-			else
-				player.print({"", "not found: ", game.equipment_prototypes[item].localised_name, " - " .. n})
-			end
-		end
-	end
+
+    -- print not_found_list
+    if next(not_found_list) then
+        for item, n in pairs(not_found_list) do
+            if n == 1 then
+                player.print({"", "not found: ", game.equipment_prototypes[item].localised_name})
+            else
+                player.print({"", "not found: ", game.equipment_prototypes[item].localised_name, " - " .. n})
+            end
+        end
+    end
 
     -- buffer to inventory
     for item, n in pairs(buffer) do
@@ -353,81 +323,8 @@ local function load_equipment(event)
 
     buffer = nil
 
-	player.print("grid loaded " .. key)
-
+    player.print("grid loaded " .. key)
 end
-
-local function test_handler(event)
-
-
-    local player = game.get_player(event.player_index)
-    local player_inventory = player.get_main_inventory()
-
-    local surface = game.surfaces[1]
-
-    -- print("test_handler")
-
-    local armor_slot = player.character.get_inventory(defines.inventory.character_armor)
-    if armor_slot.is_empty() then
-        print("armor_slot is_empty")
-        return
-    end
-
-    active_armor = armor_slot[1]
-	
-	game.print(active_armor.grid.get({0,0}).active)
-	
-
-	
-	
-    --[[
-	
-	
-		print(type(game.equipment_prototypes))
-	print(type(game.equipment_prototypes[active_armor.grid.get({0,0})]))
-	print(game.equipment_prototypes[active_armor.grid.get({0,0}).name].name)
-	-- print(game.equipment_prototypes[active_armor.grid.get({0,0}).name].type)
-	print(game.equipment_prototypes[active_armor.grid.get({0,0}).name].localised_name)
-	-- print(game.equipment_prototypes[active_armor.grid.get({0,0}).name].localised_description)
-	
-	print(active_armor.grid.get({0,0}).shield)  --energy-shield-equipment
-	print(active_armor.grid.get({0,0}).type)
-	
-	coord = {0,0}
-	active_armor.grid.get(coord).energy = 10000
-	
-	--buffer = active_armor.grid.take_all()
-	
-	--print_table(buffer)
-	
-	-- print_table(active_armor.grid.get_contents())
-	
-		coord = {0,0}
-	print(active_armor.grid.get(coord).energy)
-	
-	-- type battery-equipment
-	
-	--https://wiki.factorio.com/Types/EquipmentShape
-	--shape = active_armor.grid.get({0,0}).shape
-	
-	
-	--print(active_armor.grid.get(coord))
-	--print(active_armor.grid.get(coord).position)
-	
-	print(active_armor.grid.get(coord).type)
-	
-	local function coordinates_match(coord)
-		if active_armor.grid.get(coord) and (coord == active_armor.grid.get(coord).position) then
-			print("+")
-		end
-	end
-	
-	/c game.print(script.create_entity{name="battery-equipment"}.type)
-	/c game.print(type(defines.prototypes))
-	
-	]]
-end
-
 
 script.on_event(
     {"equipment_hotkey_save_1", "equipment_hotkey_save_2", "equipment_hotkey_save_3", "equipment_hotkey_save_4"},
@@ -437,5 +334,3 @@ script.on_event(
     {"equipment_hotkey_load_1", "equipment_hotkey_load_2", "equipment_hotkey_load_3", "equipment_hotkey_load_4"},
     load_equipment
 )
-
-script.on_event({"equipment_hotkey-input"}, test_handler)
