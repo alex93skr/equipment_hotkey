@@ -23,7 +23,6 @@ global.equipment_hotkey = {
 	
 
 ]]
-
 --@
 local function print(s)
     local DEBUG = false
@@ -164,8 +163,8 @@ local function load_equipment(event)
 
     -- virtual_inventory
     virtual_inventory = game.create_inventory(#player_inventory + 50)
-    for item, n in pairs(player_inventory.get_contents()) do
-        virtual_inventory.insert({name = item, count = n})
+    for i = 1, #player_inventory do
+        virtual_inventory[i].set_stack(player_inventory[i])
     end
 
     -- grid in virtual
